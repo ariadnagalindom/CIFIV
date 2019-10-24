@@ -15,3 +15,6 @@ data.drop(data.iloc[:, 30:], inplace = True, axis = 1)
 #creamos un reporte de los datos que vamos a analizar
 reporte=mylib.dqr(data)
 
+#%% qcomparamos las columnas Pillar vs. Family
+#creamos dataframe
+yf= pd.DataFrame()
