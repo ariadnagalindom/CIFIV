@@ -7,22 +7,44 @@ Created on Wed Oct 23 20:19:29 2019
 #importamos librerias 
 import pandas as pd
 from mylib import mylib
+import seaborn as sns
 #%% importamos la base de datos 
 data= pd.read_excel('file:///C:/Users/Ariadna/Desktop/CIFIV/Copia de M9 M2 AIW segmentation September WD4 - Oscar(2091).xlsx', 
                     sheet_name= 'Raw data 8XX')
 #removemos las columnas vacias 
-data.drop(data.iloc[:, 30:], inplace = True, axis = 1)
+data.drop(data.iloc[:, 30:57], inplace = True, axis = 1)
+sns.heatmap(data.isnull(),yticklabels=False, cbar=False,cmap='Blues_r')#vemos los datos faltantes 
 #%% columnas con los parámetros 
-datan=data.drop(['Year', 'Imt_Name', 'Iot_Name', 'Country', 'SRC', 'Segment', 'Quarter', 'FAMILY', 'Month', 'OCC', 'Major_Minor'], axis=1)
+drop_columns= ['Year', 'Imt_Name', 'Iot_Name', 'SRC', 'Segment', 'Quarter', 
+               'FAMILY', 'Month','OCC','Major_Minor', 'Maj', 'Minor','Ctrynum','Cost']
+datan=data.drop(drop_columns,axis=1)
+#limpiamos
+#datan=datan.replace(['M90','M20','M23','M22','M24','M95','M91'], 
+#                    ['000M90','000M20','000M23','000M22','000M24','000M95','000M91'])
+datan.Leru=datan.Leru.fillna('000')
 #creamos un reporte de los datos que vamos a analizar
 reporte=mylib.dqr(data)
+#Dashboard
+#sns.heatmap(datan.isnull(),yticklabels=False, cbar=False,cmap='copper')
 
+#%% DataFrame con las columnas relacionadas con dinero
+finance= pd.DataFrame(data={'LC':data.LC,
+                            'Major_Minor':data.Major_Minor,
+                            'Maj':data.Maj,
+                            'Minor':data.Minor,
+                            'Cost':data.Cost})
+sns.heatmap(finance.notnull(),yticklabels=False, cbar=False,cmap='autumn_r' )
+#%% Analizamos maj-min
+nuevo= finance[["Cost","Maj","Minor"]]
+#sns.set(style="ticks", color_codes=True)
+#g= sns.pairplot(nuevo, hue="Cost", palette="copper")
 #%% comparamos las columnas Pillar vs. Family
 pf= pd.DataFrame()
 pf['pillar']=data.Pillar
 pf['family']= data.FAMILY#TRUVENM8 
 
 reporte_pf= mylib.dqr(pf)
+#sns.countplot(x='pillar', y='family', data= pf, palette='pastel')
 #%% Vemos la desigualdad entre las columnas Pillar y Family
 pf = pf.fillna(0)
 pf['Desigualdad']= 0
@@ -36,7 +58,7 @@ for k in range(len(pf)):
 occ= pd.DataFrame()
 occ['OCC']=data.OCC
 occ['OCC_D']= data.OCC_Desc
-
+occ=occ.replace('UN', 'UNASSIGNED')
 #%% Desigualdad entre OCC y OCC_Desc
 occ['Desigualdad']= 0
 for k in range(len(occ)):
@@ -68,16 +90,7 @@ money=money.fillna('00')
 
 #LC = pd.DataFrame()
 
-#%% Limpiar columna SegCalc
-def replace_text(x, to_replace, replacement):
-    try:
-        x=x.replace(to_replace, replacement)
-    except:
-        pass
-    return x
-
-datan['SegCalc']= data.SegCalc.apply(replace_text, args= ('000',''))
-occ.OCC = occ.OCC.apply(replace_text, args=('UN','UNASSIGNED'))
+#%% Limpiar colu
 #rellenar Leru con 000
  #%% Comenzamos con el analisis 
  # Creamos DataFrame para colocar el resultado de la segmentación 
