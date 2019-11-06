@@ -8,6 +8,7 @@ Created on Wed Oct 23 20:19:29 2019
 import pandas as pd
 from mylib import mylib
 import seaborn as sns
+import matplotlib.pyplot as plt
 #%% importamos la base de datos 
 data= pd.read_excel('file:///C:/Users/Ariadna/Desktop/CIFIV/Copia de M9 M2 AIW segmentation September WD4 - Oscar(2091).xlsx', 
                     sheet_name= 'Raw data 8XX')
@@ -25,26 +26,30 @@ datan.Leru=datan.Leru.fillna('000')
 #creamos un reporte de los datos que vamos a analizar
 reporte=mylib.dqr(data)
 #Dashboard
-#sns.heatmap(datan.isnull(),yticklabels=False, cbar=False,cmap='copper')
-
+sns.heatmap(datan.isnull(),yticklabels=False, cbar=False,cmap='copper')
 #%% DataFrame con las columnas relacionadas con dinero
 finance= pd.DataFrame(data={'LC':data.LC,
-                            'Major_Minor':data.Major_Minor,
                             'Maj':data.Maj,
                             'Minor':data.Minor,
                             'Cost':data.Cost})
 sns.heatmap(finance.notnull(),yticklabels=False, cbar=False,cmap='autumn_r' )
 #%% Analizamos maj-min
-nuevo= finance[["Cost","Maj","Minor"]]
-#sns.set(style="ticks", color_codes=True)
-#g= sns.pairplot(nuevo, hue="Cost", palette="copper")
+#dependiente=LC
+#independiente=maj, min, cost
+#gráfica para ver 
+sns.set(style='whitegrid')
+sns.pairplot(finance, hue= 'LC', palette='Accent',kind='scatter', diag_kind='auto', dropna=True)
 #%% comparamos las columnas Pillar vs. Family
 pf= pd.DataFrame()
 pf['pillar']=data.Pillar
 pf['family']= data.FAMILY#TRUVENM8 
 
+#sns.heatmap(pf.notnull().loc[0:300] )
 reporte_pf= mylib.dqr(pf)
-#sns.countplot(x='pillar', y='family', data= pf, palette='pastel')
+#%%
+#sns.set(style='whitegrid')
+sns.relplot(x='pillar', y='family',hue='pillar',data=pf,legend='brief',height=15, aspect=1)
+#demostramos gráficamente que son iguales 
 #%% Vemos la desigualdad entre las columnas Pillar y Family
 pf = pf.fillna(0)
 pf['Desigualdad']= 0
@@ -59,6 +64,7 @@ occ= pd.DataFrame()
 occ['OCC']=data.OCC
 occ['OCC_D']= data.OCC_Desc
 occ=occ.replace('UN', 'UNASSIGNED')
+sns.relplot(x='OCC', y='OCC_D', hue='OCC', data=occ, legend='full',height=15, aspect=1)
 #%% Desigualdad entre OCC y OCC_Desc
 occ['Desigualdad']= 0
 for k in range(len(occ)):
