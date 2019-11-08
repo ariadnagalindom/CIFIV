@@ -15,10 +15,10 @@ data= pd.read_excel('file:///C:/Users/Ariadna/Desktop/CIFIV/Copia de M9 M2 AIW s
 #removemos las columnas vacias 
 data.drop(data.iloc[:, 30:57], inplace = True, axis = 1)
 
-sns.heatmap(data.isnull(),yticklabels=False, cbar=False,cmap='Blues_r').get_figure().savefig('hm_data.jpg')#vemos los datos faltantes 
+sns.heatmap(data.isnull(),yticklabels=False, cbar=False,cmap='copper').get_figure().savefig('hm_data.jpg',dpi=300)#vemos los datos faltantes 
 #%% columnas con los parámetros 
 drop_columns= ['Year', 'Imt_Name', 'Iot_Name', 'SRC', 'Segment', 'Quarter', 
-               'FAMILY', 'Month','OCC','Major_Minor', 'Maj', 'Minor','Ctrynum','Cost']
+               'FAMILY', 'Month','Major_Minor', 'Maj', 'Minor','Ctrynum','Cost']
 datan=data.drop(drop_columns,axis=1)
 #limpiamos
 #datan=datan.replace(['M90','M20','M23','M22','M24','M95','M91'], 
@@ -27,14 +27,14 @@ datan.Leru=datan.Leru.fillna('000')
 #creamos un reporte de los datos que vamos a analizar
 reporte=mylib.dqr(data)
 
-sns.heatmap(datan.isnull(),yticklabels=False, cbar=False,cmap='copper').get_figure().savefig('hm_datan.jpg')
+sns.heatmap(datan.isnull(),yticklabels=False, cbar=False,cmap='copper').get_figure().savefig('hm_datan.jpg',dpi=300)
 #%% DataFrame con las columnas relacionadas con dinero
 finance= pd.DataFrame(data={'LC':data.LC,
                             'Maj':data.Maj,
                             'Minor':data.Minor,
                             'Cost':data.Cost})
 
-sns.heatmap(finance.notnull(),yticklabels=False, cbar=False,cmap='autumn_r' ).get_figure().savefig('hm_finance.jpg')
+sns.heatmap(finance.isnull(),yticklabels=False, cbar=False,cmap='copper' ).get_figure()#.savefig('hm_finance.jpg',dpi=300)
 #%% Analizamos maj-min
 #dependiente=LC
 #independiente=maj, min, cost
@@ -42,7 +42,9 @@ sns.heatmap(finance.notnull(),yticklabels=False, cbar=False,cmap='autumn_r' ).ge
 #sns.color_palette("tab20c", n_colors=20)
 sns.set(style='whitegrid', font_scale=1.5, color_codes=True)#agregamos cuadricula a TODO en seaborn
 sns.pairplot(finance, hue= 'LC',palette="tab20c",
-             kind='scatter', diag_kind='auto', dropna=True).savefig('finance_corr.jpg')
+             kind='scatter', dropna=True).savefig('finance_corr.jpg',dpi=300)
+# la diágonal 
+reporte_finance= mylib.dqr(finance)
 #%% comparamos las columnas Pillar vs. Family
 pf= pd.DataFrame()
 pf['pillar']=data.Pillar
@@ -50,13 +52,10 @@ pf['family']= data.FAMILY#TRUVENM8
 
 reporte_pf= mylib.dqr(pf)
 
-sns.set(style="whitegrid", palette="deep", font_scale=0.8, color_codes=True)
-sns.axes_style(style='ticks')
+sns.set(style='whitegrid', palette='deep', font_scale=0.8, color_codes=True)
 sns.relplot(x='pillar', y='family',hue='pillar',data=pf,
-            legend='brief',height=6, aspect=1,sizes=(10,100) ,
-            ).savefig('pillar_vs_family.jpg')
-#demostramos gráficamente que son iguales 
-'''
+            height=10).savefig('pillar_vs_family.jpg',dpi=300)
+#demostramos gráficamente que son iguales
 #%% Vemos la desigualdad entre las columnas Pillar y Family
 pf = pf.fillna(0)
 pf['Desigualdad']= 0
@@ -65,15 +64,15 @@ for k in range(len(pf)):
         pass
     else:
         pf.iloc[k,2]='WARNING'
-        '''
+        
 #%% comparamos OCC OCC_Desc 
 occ= pd.DataFrame()
 occ['OCC']=data.OCC
 occ['OCC_D']= data.OCC_Desc
 occ=occ.replace('UN', 'UNASSIGNED')
 sns.relplot(x='OCC', y='OCC_D', hue='OCC',
-            data=occ, legend='full',height=8, aspect=1).savefig('occ.jpg')
-'''
+            data=occ, legend='full',height=8, aspect=1).savefig('occ.jpg',dpi=500)
+
 #%% Desigualdad entre OCC y OCC_Desc
 occ['Desigualdad']= 0
 for k in range(len(occ)):
@@ -81,7 +80,7 @@ for k in range(len(occ)):
         pass
     else:
         occ.iloc[k,2]='WARNING'
-        '''
+
 #%encontramos que estas columnas son iguales, por lo tanto una de estas viene sobrando en cada uno de los casos
 #en pillar= PATIENTSAFTY, mientras en family= WPS-EXP en OCC hay claves, por lo tanto nos vamos a quedar con los nombres (OCC_Desc) 
 
@@ -91,26 +90,37 @@ l['lot']= data.Iot_Name
 l['lmt']= data.Imt_Name
 
 sns.relplot(x='lot', y='lmt', hue='lmt',
-            data=l, legend='full',height=8, aspect=1.5).savefig('countries.jpg')
+            data=l, legend='full',height=8, aspect=1.5).savefig('region_countries.jpg',dpi=500)
 #Con esto encontramos qué países pertenecen a cada región, hay unas que solo tienen 1 país
 #%%
 countries= pd.DataFrame()
 countries['country']=data.Country
 countries['countrynum']=data.Ctrynum
 
-sns.relplot(x='country', y='countrynum', hue='country',data=countries)#????
+sns.relplot(x='country', y='countrynum', hue='country',data=countries)#.savefig('country.jpg')#sort????
 #%%
 LS = pd.DataFrame()
 LS['SRC']=data.SRC
 LS['LC']=data.LC
 
-sns.relplot(x='SRC', y='LC',hue='SRC', data=LS, size='SRC')#cluster? hay 4 grupos 
+sns.relplot(x='SRC', y='LC',hue='LC', data=LS, size='LC')#.savefig('LC_vs_RSC.jpg',dpi=500)#cluster? hay 4 grupos 
 
 #%%diferencias de segmentación
 segmentacion=pd.DataFrame()
 segmentacion['SegOf']=datan['Segmentation Offering']
-#segmentacion['SegAdd']=datan.iloc[:,-1:]
+segmentacion['SegAdd']=datan.iloc[:,-1:]
 
-#%% Segmentamos los parámetros
+datan=datan.replace('Truven simpler','Truven Simpler')
 
-
+sns.set(style="whitegrid", palette="deep", font_scale=0.6, color_codes=True)
+sns.relplot(x='SegOf',y='SegAdd', hue='SegOf', data=segmentacion,height=8).savefig('segmentacion.jpg',dpi=300)
+#%% OCC vs SegCalc
+sns.relplot(x='OCC_Desc', y='SegCalc', hue='Segmentation Offering',
+            data=datan, height=12,aspect=1 )#.savefig('Segcalc_OCC.jpg')
+#%% Lob vs. OCC
+sns.relplot(x='LoB', y='OCC_Desc', hue='Segmentation Offering',data=datan)#.savefig('lob_occ.jpg', dpi=300)
+#%% Lob vs. LC
+sns.relplot(x='LoB', y='LC', hue='Segmentation Offering',data=datan)
+#%% OCC vs. Segmentation Offering
+sns.relplot(x='Segmentation Offering', y='OCC_Desc', hue='Segmentation Offering',
+            data=datan)
