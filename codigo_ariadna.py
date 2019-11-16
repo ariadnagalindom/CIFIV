@@ -15,7 +15,7 @@ data= pd.read_excel('file:///C:/Users/Ariadna/Desktop/CIFIV/Copia de M9 M2 AIW s
 #removemos las columnas vacias 
 data.drop(data.iloc[:, 30:57], inplace = True, axis = 1)
 
-sns.heatmap(data.isnull(),yticklabels=False, cbar=False,cmap='copper').get_figure().savefig('hm_data.jpg',dpi=300)#vemos los datos faltantes 
+sns.heatmap(data.isnull(),yticklabels=False, cbar=False,cmap='copper').get_figure().savefig('hm_data.jpg',dpi=1000)#vemos los datos faltantes 
 #%% columnas con los parámetros 
 drop_columns= ['Year', 'Imt_Name', 'Iot_Name', 'SRC', 'Segment', 'Quarter', 
                'FAMILY', 'Month','Major_Minor', 'Maj', 'Minor','Ctrynum','Cost']
@@ -52,11 +52,13 @@ pf['family']= data.FAMILY#TRUVENM8
 
 reporte_pf= mylib.dqr(pf)
 
-sns.set(style='whitegrid', palette='deep', font_scale=0.8, color_codes=True)
-sns.relplot(x='pillar', y='family',hue='pillar',data=pf,
-            height=10).savefig('pillar_vs_family.jpg',dpi=300)
+sns.set(style='whitegrid', palette='deep', font_scale=1, color_codes=True)
+pf_chart=sns.relplot(x='pillar', y='family',hue='pillar',data=pf,
+            height=5)
+plt.xticks(rotation=90)
+pf_chart.savefig('pillar_vs_family.jpg',dpi=300)
 #demostramos gráficamente que son iguales
-#%% Vemos la desigualdad entre las columnas Pillar y Family
+#%% Vemos la desigualdad entre las columnas Pillar y Family 
 pf = pf.fillna(0)
 pf['Desigualdad']= 0
 for k in range(len(pf)):
@@ -70,8 +72,10 @@ occ= pd.DataFrame()
 occ['OCC']=data.OCC
 occ['OCC_D']= data.OCC_Desc
 occ=occ.replace('UN', 'UNASSIGNED')
-sns.relplot(x='OCC', y='OCC_D', hue='OCC',
-            data=occ, legend='full',height=8, aspect=1).savefig('occ.jpg',dpi=500)
+occ_chart=sns.relplot(x='OCC', y='OCC_D', hue='OCC',
+            data=occ, legend='full',height=8, aspect=1)
+plt.xticks(rotation=90)
+occ_chart.savefig('occ.jpg',dpi=500)
 
 #%% Desigualdad entre OCC y OCC_Desc
 occ['Desigualdad']= 0
@@ -97,23 +101,26 @@ countries= pd.DataFrame()
 countries['country']=data.Country
 countries['countrynum']=data.Ctrynum
 
+plt.plot(countries.country, countries.countrynum)
 sns.relplot(x='country', y='countrynum', hue='country',data=countries)#.savefig('country.jpg')#sort????
 #%%
 LS = pd.DataFrame()
 LS['SRC']=data.SRC
 LS['LC']=data.LC
 
-sns.relplot(x='SRC', y='LC',hue='LC', data=LS, size='LC')#.savefig('LC_vs_RSC.jpg',dpi=500)#cluster? hay 4 grupos 
-
+sns.relplot(x='SRC', y='LC',hue='LC', data=LS)#.savefig('LC_vs_RSC.jpg',dpi=500)#cluster? hay 4 grupos 
+#nel
 #%%diferencias de segmentación
 segmentacion=pd.DataFrame()
-segmentacion['SegOf']=datan['Segmentation Offering']
-segmentacion['SegAdd']=datan.iloc[:,-1:]
+segmentacion['Segmentacion Ofrecida']=datan['Segmentation Offering']
+segmentacion['Segmentacion Agregada']=datan.iloc[:,-1:]
 
 datan=datan.replace('Truven simpler','Truven Simpler')
 
-sns.set(style="whitegrid", palette="deep", font_scale=0.6, color_codes=True)
-sns.relplot(x='SegOf',y='SegAdd', hue='SegOf', data=segmentacion,height=8).savefig('segmentacion.jpg',dpi=300)
+sns.set(style="whitegrid", palette="deep", color_codes=True)
+seg_cahrt=sns.relplot(x='Segmentacion Ofrecida',y='Segmentacion Agregada', data=segmentacion)
+plt.xticks(rotation=90)
+seg_cahrt.savefig('segmentacion.jpg',dpi=300)
 #%% OCC vs SegCalc
 sns.relplot(x='OCC_Desc', y='SegCalc', hue='Segmentation Offering',
             data=datan, height=12,aspect=1 )#.savefig('Segcalc_OCC.jpg')

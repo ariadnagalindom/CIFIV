@@ -9,5 +9,7 @@ maj & min son activos y pasivos; segmentar estos
 costo 400, gasto 800
 columna AD es como el "resultado" ya que es donde se muestra la segmentación utilizada
 tratar de reducir "unsegmented" 
-
+nos vamos a basar enla columna de bmdivision
+en parámetros debemos de respetar los datos aunque no se usen, por si acaso
+debemos de hacer un reporte con propuestas 
 
